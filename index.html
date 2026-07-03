@@ -46,7 +46,8 @@
   }
   .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(47,174,122,.18)}
   h1.title{
-    font-size:clamp(2.3rem,6vw,3.7rem);font-weight:900;letter-spacing:-.02em;line-height:1.05;
+    font-size:clamp(2.3rem,6vw,3.7rem);font-weight:900;letter-spacing:-.02em;line-height:1.15;
+    padding-block:.06em;
     background:linear-gradient(105deg,var(--coral),var(--rose) 45%,var(--violet));
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   }
@@ -149,6 +150,7 @@
   .reveal.in{opacity:1;transform:none}
 
   @media(max-width:720px){
+    body{background-attachment:scroll}
     .kpis{grid-template-columns:1fr;gap:12px}
     .donut-grid{grid-template-columns:1fr}
     .panel{padding:24px 18px}
@@ -313,21 +315,37 @@ function countUp(el, target, dur=1400){
 }
 
 /* ---------- KPI reveal ---------- */
-const kObs=new IntersectionObserver((es)=>{
-  es.forEach(e=>{ if(e.isIntersecting){
-    e.target.classList.add('in');
-    const c=e.target.querySelector('[data-count]');
-    if(c && !c.dataset.done){c.dataset.done=1;countUp(c,+c.dataset.count);}
-    kObs.unobserve(e.target);
-  }});
-},{threshold:.3});
-document.querySelectorAll('.kpi').forEach((k,i)=>{k.style.transitionDelay=(i*.12)+'s';kObs.observe(k);});
+const hasIO = 'IntersectionObserver' in window;
+function revealKpi(el){
+  el.classList.add('in');
+  const c=el.querySelector('[data-count]');
+  if(c && !c.dataset.done){c.dataset.done=1;countUp(c,+c.dataset.count);}
+}
+const kObs = hasIO ? new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){ revealKpi(e.target); kObs.unobserve(e.target); }});
+},{threshold:0,rootMargin:'0px 0px -10% 0px'}) : null;
+document.querySelectorAll('.kpi').forEach((k,i)=>{
+  k.style.transitionDelay=(i*.12)+'s';
+  if(kObs) kObs.observe(k); else revealKpi(k);
+});
 
 /* ---------- reveal sections ---------- */
-const rObs=new IntersectionObserver((es)=>{
+const rObs = hasIO ? new IntersectionObserver((es)=>{
   es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); rObs.unobserve(e.target); }});
-},{threshold:.18});
-document.querySelectorAll('.reveal').forEach(s=>rObs.observe(s));
+},{threshold:0,rootMargin:'0px 0px -8% 0px'}) : null;
+document.querySelectorAll('.reveal').forEach(s=>{ if(rObs) rObs.observe(s); else s.classList.add('in'); });
+
+/* safety net: never leave content hidden if observers misfire on mobile */
+window.addEventListener('load',()=>{ setTimeout(()=>{
+  document.querySelectorAll('.reveal:not(.in)').forEach(s=>{
+    const r=s.getBoundingClientRect();
+    if(r.top < window.innerHeight) s.classList.add('in');
+  });
+  document.querySelectorAll('.kpi:not(.in)').forEach(k=>{
+    const r=k.getBoundingClientRect();
+    if(r.top < window.innerHeight) revealKpi(k);
+  });
+},600); });
 
 /* ---------- AGGREGATES ---------- */
 const byCat={}, bySub={};
