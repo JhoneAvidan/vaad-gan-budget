@@ -136,7 +136,6 @@
   .cat-tag{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;white-space:nowrap}
   .cat-tag .cd{width:9px;height:9px;border-radius:3px;flex:none}
   .tdate{color:var(--ink-soft);font-size:.86rem;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .tperson{color:var(--ink-soft);font-size:.88rem;white-space:nowrap}
   .empty{text-align:center;color:var(--ink-soft);padding:30px}
   .tfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-weight:700;color:var(--ink-soft);font-size:.9rem}
 
@@ -155,6 +154,10 @@
     .donut-grid{grid-template-columns:1fr}
     .panel{padding:24px 18px}
     thead th.hide,tbody td.hide{display:none}
+    .row-sub{display:none}
+    .sub-row{gap:8px;padding-inline-start:14px}
+    .sub-name{white-space:normal;overflow:visible;text-overflow:clip;flex:1 1 auto;line-height:1.35}
+    .sub-bar{flex:0 0 auto;max-width:52px}
     .float{font-size:1.7rem}
   }
 </style>
@@ -190,7 +193,7 @@
       <span class="ico">🛍️</span>
       <div class="lbl">סך ההוצאות</div>
       <div class="val"><span class="cur">₪</span><span data-count="7256">0</span></div>
-      <div class="note">ב־29 רכישות לאורך השנה</div>
+      <div class="note">ב־26 רכישות לאורך השנה</div>
     </div>
     <div class="kpi util">
       <span class="ico">✅</span>
@@ -240,7 +243,6 @@
             <th>הוצאה</th>
             <th>קטגוריה</th>
             <th class="hide">תאריך</th>
-            <th class="hide">שילם/ה</th>
             <th class="num">סכום</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
@@ -284,21 +286,18 @@ const DATA = [
   {n:"יום המשפחה", a:215, p:"יהונתן אבידן", d:"20.1.26", cat:"אירועים משפחתיים", sub:"יום המשפחה"},
   {n:"משלוח מנות", a:374, p:"יהונתן אבידן", d:"6.2.26", cat:"חגים ומועדים", sub:"פורים"},
   {n:"מתנה לביימי — פסח", a:750, p:"יהונתן אבידן", d:"30.3.26", cat:"מתנות ופרחים לצוות", sub:"מתנות לביימי"},
-  {n:"מצרכים אחרי פסח", a:98, p:"גל ספיר", d:"9.4.26", cat:"חגים ומועדים", sub:"פסח"},
-  {n:"מצרכים אחרי פסח", a:12, p:"יהונתן אבידן", d:"9.4.26", cat:"חגים ומועדים", sub:"פסח"},
+  {n:"מצרכים אחרי פסח", a:110, p:"גל ספיר", d:"9.4.26", cat:"חגים ומועדים", sub:"פסח"},
   {n:"ארטיקים ליום העצמאות", a:40, p:"יהונתן אבידן", d:"אפריל 26'", cat:"חגים ומועדים", sub:"יום העצמאות"},
   {n:"פרחים לאיילת", a:50, p:"יהונתן אבידן", d:"אפריל 26'", cat:"מתנות ופרחים לצוות", sub:"פרחים וימי הולדת"},
   {n:"אבטיח ליום העצמאות", a:18, p:"יהונתן אבידן", d:"אפריל 26'", cat:"חגים ומועדים", sub:"יום העצמאות"},
   {n:"פיתות ליום העצמאות", a:64, p:"יהונתן אבידן", d:"אפריל 26'", cat:"חגים ומועדים", sub:"יום העצמאות"},
   {n:"פרחים למומינה", a:50, p:"גל ספיר", d:"30.4.26", cat:"מתנות ופרחים לצוות", sub:"פרחים וימי הולדת"},
   {n:"רובה מים לסוף שנה", a:200, p:"יהונתן אבידן", d:"20.5.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
-  {n:"מתנות סוף שנה — כדורים וסבון", a:178, p:"יהונתן אבידן", d:"5.6.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
-  {n:"מתנה לאיתן לסוף שנה", a:20, p:"גל ספיר", d:"16.6.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
+  {n:"מתנות סוף שנה לילדים — כדורים, סבון ועוד", a:198, p:"יהונתן אבידן", d:"5.6.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
   {n:"כובעים לסוף שנה", a:742, p:"יהונתן אבידן", d:"24.6.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
   {n:"שקיות למתנות סוף שנה", a:36, p:"יהונתן אבידן", d:"2.7.26", cat:"סוף שנה — ילדי הגן", sub:"מתנות סיום לילדים"},
   {n:"פרחים לסוף שנה", a:150, p:"יהונתן אבידן", d:"2.7.26", cat:"סוף שנה — ילדי הגן", sub:"פרחים לסיום"},
-  {n:"מתנה לביימי — סוף שנה", a:950, p:"גל ספיר", d:"3.7.26", cat:"מתנות ופרחים לצוות", sub:"מתנות לביימי"},
-  {n:"מתנה לביימי — סוף שנה (השלמה)", a:900, p:"גל ספיר", d:"3.7.26", cat:"מתנות ופרחים לצוות", sub:"מתנות לביימי"}
+  {n:"מתנה לביימי — סוף שנה", a:1850, p:"גל ספיר", d:"3.7.26", cat:"מתנות ופרחים לצוות", sub:"מתנות לביימי"}
 ];
 const TOTAL = DATA.reduce((s,x)=>s+x.a,0);
 const fmt = n => n.toLocaleString('en-US');
@@ -465,7 +464,7 @@ function render(){
   const rows=DATA.filter(x=>(activeCat==='all'||x.cat===activeCat)&&(!query||x.n.includes(query)||x.p.includes(query)||x.cat.includes(query)||x.sub.includes(query)))
                  .sort((a,b)=>b.a-a.a);
   tbody.innerHTML='';
-  if(!rows.length){tbody.innerHTML=`<tr><td colspan="5" class="empty">לא נמצאו הוצאות תואמות 🤷</td></tr>`;}
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="4" class="empty">לא נמצאו הוצאות תואמות 🤷</td></tr>`;}
   let sum=0;
   rows.forEach(x=>{
     sum+=x.a;
@@ -473,7 +472,6 @@ function render(){
     tr.innerHTML=`<td><div style="font-weight:600">${x.n}</div><div class="row-sub">${x.sub}</div></td>
       <td><span class="cat-tag"><span class="cd" style="background:${GROUPS[x.cat].c}"></span>${GROUPS[x.cat].e} ${x.cat}</span></td>
       <td class="hide tdate">${x.d}</td>
-      <td class="hide tperson">${x.p}</td>
       <td class="amt">₪${fmt(x.a)}</td>`;
     tbody.appendChild(tr);
   });
